@@ -1,0 +1,327 @@
+JDB, guía de supervivencia
+
+Pello Xabier Altadill Izura.
+
+Un programador debiera acostumbrarse a ejecutar sus programas depurando. Casi
+nos podriamos atrever a decir que debiera aprender a usar el depurador antes que el
+compilador.
+
+Un requisito importante antes de depurar sería compilar el programa con el
+modificador -g. Mediante esa opción preparamos el programa para que sea destripado
+por el depurador de forma más cómoda.
+
+Tenemos un programa de ejemplo (IndiceMasaCorporal.java) el cual vamos a depurar
+paso a paso. Podemos ejecutar directamente el programa pero lo habitual es establecer
+un punto de interrupción y a partir de ahí vamos paso a paso.
+
+En este primer ejemplo vamos a probar el método main, sin meternos en los métodos.
+Simplemente vamos a alterar dos variables para ver cómo se comporta el programa
+en esta nueva situación:
+
+Compilamos:
+C:\> java -g IndiceMasaCorporal.java
+
+Y Ponemos en marcha el depurador
+
+C:\> jdb
+IndiceMasaCorporal
+Initializing jdb ...
+> stop in IndiceMasaCorporal.main
+Deferring breakpoint IndiceMasaCorporal.main.
+It will be set after the class is loaded.
+> run
+run IndiceMasaCorporal
+Set uncaught java.lang.Throwable
+Set deferred uncaught java.lang.Throwable
+>
+VM Started: Set deferred breakpoint IndiceMasaCorporal.main
+
+Breakpoint hit: "thread=main", IndiceMasaCorporal.main(), line=92 bci=0
+92              altura = peso = resultado = 0;
+
+main[1] list
+88      */
+89      public static void main (String args[]) throws Exception {
+90              float altura, peso, resultado;
+91
+92 =>           altura = peso = resultado = 0;
+93
+94              altura = 177F;
+95              peso = 80.3F;
+96
+97              IndiceMasaCorporal imc = new IndiceMasaCorporal(peso, altura);
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=94 bci=6
+94              altura = 177F;
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=95 bci=9
+95              peso = 80.3F;
+
+main[1] set altura=169.0F
+ altura=169.0F = 169.0
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=97 bci=12
+97              IndiceMasaCorporal imc = new IndiceMasaCorporal(peso, altura);
+
+main[1] set peso=65.0F
+ peso=65.0F = 65.0
+main[1] next
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=99 bci=23
+99              System.out.println("Vamos a calcular el IMC ");
+
+main[1] dump imc
+ imc = {
+    altura: 169.0
+    peso: 65.0
+}
+main[1] step up
+Vam> os a calcular el IMC
+Pes
+oStep completed:  65.0 y altura: 169.0
+ IMC=Muy bien
+"thread=main", java.lang.Thread.exit(), line=731 bci=0
+
+
+main[1] exit
+
+C:\>
+
+Vamos a llevar a cabo otra sesión entrando en métodos, mostrando información
+de la clase, etc...
+
+C:\>jdb
+IndiceMasaCorporal
+Initializing jdb ...
+> stop in IndiceMasaCorporal.main
+Deferring breakpoint IndiceMasaCorporal.main.
+It will be set after the class is loaded.
+> run
+run IndiceMasaCorporal
+Set uncaught java.lang.Throwable
+Set deferred uncaught java.lang.Throwable
+>
+VM Started: Set deferred breakpoint IndiceMasaCorporal.main
+
+Breakpoint hit: "thread=main", IndiceMasaCorporal.main(), line=92 bci=0
+92              altura = peso = resultado = 0;
+
+main[1] list main
+88      */
+89      public static void main (String args[]) throws Exception {
+90              float altura, peso, resultado;
+91
+92 =>           altura = peso = resultado = 0;
+93
+94              altura = 177F;
+95              peso = 80.3F;
+96
+97              IndiceMasaCorporal imc = new IndiceMasaCorporal(peso, altura);
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=94 bci=6
+94              altura = 177F;
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=95 bci=9
+95              peso = 80.3F;
+
+main[1] print altura
+ altura = 177
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=97 bci=12
+97              IndiceMasaCorporal imc = new IndiceMasaCorporal(peso, altura);
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.<init>(), line=27 bci=0
+27      {
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.<init>(), line=28 bci=4
+28              this.peso = peso;
+
+main[1] print peso
+ peso = 80.3
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.<init>(), line=29 bci=9
+29              this.altura = altura;
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.<init>(), line=30 bci=14
+30      }
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=97 bci=21
+97              IndiceMasaCorporal imc = new IndiceMasaCorporal(peso, altura);
+
+main[1] print imc
+com.sun.tools.example.debug.expr.ParseException: Name unknown: imc
+ imc = null
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=99 bci=23
+99              System.out.println("Vamos a calcular el IMC ");
+
+main[1] print imc
+ imc = "IndiceMasaCorporal@17cf28b"
+main[1] dump imc
+ imc = {
+    altura: 177
+    peso: 80.3
+}
+main[1] fields imc
+"imc" is not a valid id or class name.
+main[1] fields IndiceMasaCorporal
+** fields list **
+float altura
+float peso
+main[1] methods IndiceMasaCorporal
+** methods list **
+IndiceMasaCorporal <init>(float, float)
+IndiceMasaCorporal <init>(java.lang.String, java.lang.String)
+IndiceMasaCorporal calcularIMC()
+IndiceMasaCorporal diagnostico()
+IndiceMasaCorporal main(java.lang.String[])
+java.lang.Object <init>()
+java.lang.Object registerNatives()
+java.lang.Object getClass()
+java.lang.Object hashCode()
+java.lang.Object equals(java.lang.Object)
+java.lang.Object clone()
+java.lang.Object toString()
+java.lang.Object notify()
+java.lang.Object notifyAll()
+java.lang.Object wait(long)
+java.lang.Object wait(long, int)
+java.lang.Object wait()
+java.lang.Object finalize()
+java.lang.Object <clinit>()
+main[1] class IndiceMasaCorporal
+Class: IndiceMasaCorporal
+extends: java.lang.Object
+main[1] list
+95              peso = 80.3F;
+96
+97              IndiceMasaCorporal imc = new IndiceMasaCorporal(peso, altura);
+98
+99 =>           System.out.println("Vamos a calcular el IMC ");
+100
+101             System.out.println("Peso " + peso + " y altura: " + altura + "\n IMC=" + imc.diagnostico());
+102
+103             resultado = imc.calcularIMC();
+104
+main[1] step
+> Vamos a
+cStep completed: alcular el I"thread=main", IndiceMasaCorporal.main(), line=101
+bci=31
+MC
+101             System.out.println("Peso " + peso + " y altura: " + altura + "\n IMC=" + imc.diagnostico());
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.diagnostico(), line=73 bci=0
+73              float imc = calcularIMC();
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.calcularIMC(), line=52 bci=0
+52              float resultado = 0;
+
+main[1] step up
+>
+Step completed: "thread=main", IndiceMasaCorporal.diagnostico(), line=73 bci=4
+73              float imc = calcularIMC();
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.diagnostico(), line=75 bci=5
+75              if (imc < 18) {
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.diagnostico(), line=77 bci=15
+77              } else if (imc >= 18 && imc < 25) {
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.diagnostico(), line=80 bci=32
+80                      return "Sobrepeso";
+
+main[1] step
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=101 bci=69
+101             System.out.println("Peso " + peso + " y altura: " + altura + "\n IMC=" + imc.diagnostico());
+
+main[1] list
+97              IndiceMasaCorporal imc = new IndiceMasaCorporal(peso, altura);
+98
+99              System.out.println("Vamos a calcular el IMC ");
+100
+101 =>          System.out.println("Peso " + peso + " y altura: " + altura + "\n
+ IMC=" + imc.diagnostico());
+102
+103             resultado = imc.calcularIMC();
+104
+105     }
+106
+main[1] step
+> Peso 80.3 y altura: 177
+ IMC=
+SStep completed: obrepes"thread=main", IndiceMasaCorporal.main(), line=103 bci=78
+103             resultado = imc.calcularIMC();
+
+main[1]
+next
+>
+Step completed: "thread=main", IndiceMasaCorporal.main(), line=105 bci=84
+105     }
+
+main[1] next
+>
+The application exited
+
+C:\>
+
+---------------------------------------------------
+
+Lista de comandos
+help: nos muestra la ayuda.
+exit: salimos del depurador
+run: ejecuta el método main
+list (numero línea|método): muestra el código fuente
+
+Puntos de ruptura:
+stop in Clase.Metodo : establece un punto de interrupción en un método
+stop at Clase.Linea: establece un punto de interrupción en una línea
+clear Clase.Metodo
+clear Clase.Linea
+clear: muestra los puntos de ruptura
+
+Ejecución por pasos:
+step: ejecuta la línea actual
+step up: se ejecuta seguido hasta que el método actual finalice
+stepi: ejecuta la instrucción actual.
+next: ejecuta la línea actual, sin meterse en los métodos
+
+Ver detalles:
+print x : muestra el valor de x, x puede ser un tipo simple o una expresión
+dump x : vuelca el contenido de un objeto
+eval x : similar a print, evalua la expresión x
+set var=x : establece x en var.
+class Clase : 
+methods Clase
+fields Clase
+
+Otras opciones:
+Podemos crear un guión de inicio con un fichero llamado jdb.ini o .jdbrc
