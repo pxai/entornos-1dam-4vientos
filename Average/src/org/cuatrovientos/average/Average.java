@@ -65,7 +65,7 @@ public class Average {
 		
 		// Calculate the average
 		average = (number1 + number2 + number3 + number4 + number5) / 5;
-		System.out.println("Average is " + average);
+		System.out.println("Average is: " + average);
 	}
 
 }
